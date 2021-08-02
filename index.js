@@ -15,8 +15,8 @@ export default class ListItem {
   static init() {
     if (LocalStorage.getItem('lists')) {
     // if there is elements in the localstorage renders it in the window
-      const arrLS = Array.from(JSON.parse(LocalStorage.getItem('lists')));
-      this.render(arrLS);
+      const localStorageArray = Array.from(JSON.parse(LocalStorage.getItem('lists')));
+      this.render(localStorageArray);
     } else {
       localStorage.setItem('lists', '[]');
     }
@@ -56,19 +56,19 @@ export default class ListItem {
   }
 
   static editItem(index, mssg) {
-    const arrLS = Array.from(JSON.parse(LocalStorage.getItem('lists')));
-    arrLS.forEach((item) => {
+    const localStorageArray = Array.from(JSON.parse(LocalStorage.getItem('lists')));
+    localStorageArray.forEach((item) => {
       if (item.index === index) {
         item.description = mssg;
       }
     });
-    this.setLocalStorage(arrLS);
+    this.setLocalStorage(localStorageArray);
   }
 
   static deleteItem(index) {
-    const arrLS = Array.from(JSON.parse(LocalStorage.getItem('lists')));
+    const localStorageArray = Array.from(JSON.parse(LocalStorage.getItem('lists')));
     // delete element that match with the index and saves the array in a new one
-    const newArr = arrLS.filter((object) => object.index !== index);
+    const newArr = localStorageArray.filter((object) => object.index !== index);
 
     newArr.forEach((object, i) => {
       // giving new index to all elements
@@ -78,9 +78,9 @@ export default class ListItem {
   }
 
   static deleteAllCompleted() {
-    const arrLS = (LocalStorage.length > 0) ? Array.from(JSON.parse(LocalStorage.getItem('lists'))) : [];
-    if (arrLS.length > 0) {
-      const newArr = arrLS.filter((object) => object.completed !== true);
+    const localStorageArray = (LocalStorage.length > 0) ? Array.from(JSON.parse(LocalStorage.getItem('lists'))) : [];
+    if (localStorageArray.length > 0) {
+      const newArr = localStorageArray.filter((object) => object.completed !== true);
       newArr.forEach((object, i) => {
         // giving new index to all elements
         object.index = i + 1;
@@ -90,8 +90,8 @@ export default class ListItem {
   }
 
   static resetList() {
-    const arrLS = (LocalStorage.length > 0) ? Array.from(JSON.parse(LocalStorage.getItem('lists'))) : [];
-    if (arrLS.length > 0) {
+    const localStorageArray = (LocalStorage.length > 0) ? Array.from(JSON.parse(LocalStorage.getItem('lists'))) : [];
+    if (localStorageArray.length > 0) {
       LocalStorage.clear();
       LocalStorage.setItem('lists', '[]');
     }
@@ -107,18 +107,16 @@ export default class ListItem {
 import ListItem from './crud.js';
 
 function interchange(newElement, currentElement) {
-  const dragItem = newElement;
-  const oldElement = currentElement;
-  const parentDrag = dragItem.parentNode;
-  const parentOld = oldElement.parentNode;
+  const parentDrag = newElement.parentNode;
+  const parentOld = currentElement.parentNode;
 
   parentDrag.appendChild(oldElement);
   parentOld.appendChild(dragItem);
 }
 
-function reOrderLS() {
-  const elements = document.getElementsByTagName('li');
-  const arrElements = Array.from(elements);
+function reorderLocalStorage() {
+  const elementsLi = document.getElementsByTagName('li');
+  const arrElements = Array.from(elementsLi);
   const arrObj = [];
 
   arrElements.forEach((element) => {
@@ -134,13 +132,13 @@ function reOrderLS() {
 }
 
 export default function dragDrop() {
-  const elements = document.getElementsByTagName('li');
-  const arrElements = Array.from(elements);
-  const containers = document.querySelectorAll('.container');
-  const arrContainers = Array.from(containers);
+  const elementsLi = document.getElementsByTagName('li');
+  const arrElementsLi = Array.from(elementsLi);
+  const containersDiv = document.querySelectorAll('.container');
+  const arrContainersLi = Array.from(containersDiv);
   let dragItem = null;
 
-  arrElements.forEach((element) => {
+  arrElementsLi.forEach((element) => {
     element.addEventListener('dragstart', () => {
       dragItem = element;
     });
@@ -150,7 +148,7 @@ export default function dragDrop() {
     });
   });
 
-  arrContainers.forEach((container) => {
+  arrContainersLi.forEach((container) => {
     container.addEventListener('dragover', (e) => {
       e.preventDefault();
     });
@@ -163,7 +161,7 @@ export default function dragDrop() {
 
     ) => {
       interchange(dragItem, container.firstElementChild);
-      reOrderLS();
+      reorderLocalStorage();
     });
   });
 }
@@ -198,22 +196,22 @@ const interactions = {
   },
   checkCompleteTasks: () => {
     document.addEventListener('change', (e) => {
-      const arrLS = Array.from(JSON.parse(localStorage.getItem('lists')));
+      const localStorageArray = Array.from(JSON.parse(localStorage.getItem('lists')));
       if (e.target.matches('.check')) {
         const index = parseInt(e.target.id, 10);
         const status = e.path[0].checked;
         if (status) {
           e.path[1].childNodes[3].classList.add('done');
-          arrLS.forEach((item) => {
+          localStorageArray.forEach((item) => {
             if (item.index === index) { item.completed = true; }
           });
-          setLocalStorage(arrLS);
+          setLocalStorage(localStorageArray);
         } else {
           e.path[1].childNodes[3].classList.remove('done');
-          arrLS.forEach((item) => {
+          localStorageArray.forEach((item) => {
             if (item.index === index) { item.completed = false; }
           });
-          setLocalStorage(arrLS);
+          setLocalStorage(localStorageArray);
         }
       }
     });
